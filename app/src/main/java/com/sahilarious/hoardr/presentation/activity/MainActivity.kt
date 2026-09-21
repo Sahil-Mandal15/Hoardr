@@ -1,6 +1,7 @@
 package com.sahilarious.hoardr.presentation.activity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -48,8 +49,9 @@ class MainActivity : ComponentActivity() {
 fun SampleLinkList(links: List<LinkModel>, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier) {
         items(links) { link ->
+            Log.d("FOSSILS", "SampleLinkList: $link")
             Text(
-                text = link.url ?: "No URL",
+                text = link.title ?: "No Found",
                 modifier = Modifier.padding(16.dp)
             )
         }

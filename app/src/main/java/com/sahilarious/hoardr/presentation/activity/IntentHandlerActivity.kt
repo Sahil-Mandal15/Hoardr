@@ -29,7 +29,7 @@ class IntentHandlerActivity : ComponentActivity() {
             val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
             if (sharedText != null) {
                 // Delegate to ViewModel's existing method
-                viewModel.insertLink(url = sharedText, title = "Shared Link")
+                viewModel.insertLink(url = sharedText)
                 Toast.makeText(this, "Hoarded: $sharedText", Toast.LENGTH_SHORT).show()
             }
         }

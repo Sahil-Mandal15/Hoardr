@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HoardrDao {
@@ -14,5 +15,5 @@ interface HoardrDao {
     suspend fun deleteLinkById(entity: LinkEntity)
 
     @Query("SELECT * FROM LinkEntity")
-    suspend fun getAllLinks(): List<LinkEntity>
+    fun getAllLinks(): Flow<List<LinkEntity>>
 }

@@ -11,6 +11,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 @Module
@@ -30,5 +31,12 @@ object DataModule {
     fun provideHoardrDao(hoardrDatabase: HoardrDatabase) = hoardrDatabase.hoardrDao()
 
     @Provides
-    fun provideLinkRepository(hoardrDao: HoardrDao): LinkRepository = LinkRepositoryImpl(hoardrDao)
+    fun provideAppContext(@ApplicationContext context: Context): Context = context
+
+    @Provides
+    fun provideLinkRepository(
+        hoardrDao: HoardrDao,
+        context: Context,
+        @ScraperClient scraperClient: OkHttpClient
+    ): LinkRepository = LinkRepositoryImpl(hoardrDao, context, scraperClient)
 }

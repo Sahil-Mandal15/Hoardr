@@ -12,4 +12,5 @@ interface LinkRepository {
     suspend fun saveLink(link: LinkModel)
 
     suspend fun deleteLink(link: LinkModel)
+    suspend fun performEnhancement(link: LinkModel)
 }

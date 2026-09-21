@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -11,6 +13,13 @@ android {
         version = release(37)
     }
 
+    val secretProperties = Properties().apply {
+        val file = rootProject.file("secretKey.properties")
+        if (file.exists()) {
+            file.inputStream().use {load(it)}
+        }
+    }
+
     defaultConfig {
         applicationId = "com.sahilarious.hoardr"
         minSdk = 24
@@ -19,6 +28,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "ZENROWS_API_KEY",
+            "\"" + secretProperties.getProperty("ZENROWS_API_KEY") + "\""
+        )
     }
 
     buildTypes {
@@ -34,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -58,6 +74,12 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    // Jsoup
+    implementation(libs.jsoup)
+
+    // OkHttp
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
