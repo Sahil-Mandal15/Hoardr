@@ -30,7 +30,6 @@ import kotlin.coroutines.resume
 
 class LinkRepositoryImpl @Inject constructor(
     private val hoardrDao: HoardrDao,
-    private val context: Context,
     @ScraperClient private val client: OkHttpClient,
 ) : LinkRepository {
 
@@ -45,7 +44,7 @@ class LinkRepositoryImpl @Inject constructor(
             ?.firstOrNull { it.id == id }
     }
 
-    override suspend fun saveLink(link: LinkModel) {
+    private suspend fun saveLink(link: LinkModel) {
         hoardrDao.insertLink(link.toEntity())
     }
 
@@ -59,11 +58,11 @@ class LinkRepositoryImpl @Inject constructor(
 
         withContext(Dispatchers.IO + NonCancellable) {
             try {
-                Log.d("LinkRepository", "Fetching title for: $sanitizedUrl")
-                val html = fetchHtmlWithZenRows(sanitizedUrl)
+                Log.d("LinkRepository", "Fetching page content for: $sanitizedUrl")
+                val html = fetchHtml(sanitizedUrl)
 
                 if (html != null) {
-                    val document = Jsoup.parse(html)
+                    val document = Jsoup.parse(html, sanitizedUrl)
                     val ogTitle = document.select("meta[property=og:title]").attr("content")
                     val title = if (ogTitle.isNotBlank()) {
                         ogTitle
@@ -73,9 +72,22 @@ class LinkRepositoryImpl @Inject constructor(
                         if (twitterTitle.isNotBlank()) twitterTitle else document.title()
                     }
 
+                    val ogImage = document.select("meta[property=og:image]").attr("abs:content")
+                    val imageUrl = if (ogImage.isNotBlank()) {
+                        ogImage
+                    } else {
+                        val rawOgImage = document.select("meta[property=og:image]").attr("content")
+                        if (rawOgImage.isNotBlank()) {
+                            rawOgImage
+                        } else {
+                            val twitterImg = document.select("meta[name=twitter:image]").attr("abs:content")
+                            if (twitterImg.isNotBlank()) twitterImg else document.select("meta[name=twitter:image]").attr("content")
+                        }
+                    }.ifBlank { null }
+
                     if (!title.isNullOrEmpty()) {
-                        Log.d("LinkRepository", "Successfully fetched title: $title")
-                        saveLink(link.copy(title = title, status = Status.PROCESSED))
+                        Log.d("LinkRepository", "Successfully fetched title: $title, imageUrl: $imageUrl")
+                        saveLink(link.copy(title = title, imageUrl = imageUrl, status = Status.PROCESSED))
                     } else {
                         Log.w("LinkRepository", "No title found in HTML for $sanitizedUrl")
                         saveLink(link.copy(status = Status.FAILED))
@@ -83,7 +95,7 @@ class LinkRepositoryImpl @Inject constructor(
                 } else {
                     Log.e(
                         "LinkRepository",
-                        "Failed to fetch HTML from ZenRows (likely timeout or API error)"
+                        "Failed to fetch HTML for $sanitizedUrl"
                     )
                     saveLink(link.copy(status = Status.FAILED))
                 }
@@ -94,11 +106,59 @@ class LinkRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun fetchHtml(targetUrl: String): String? {
+        // 1. Try direct fetch first using browser User-Agent (fast & works for most sites)
+        val directHtml = fetchHtmlDirect(targetUrl)
+        if (!directHtml.isNullOrBlank()) {
+            return directHtml
+        }
+
+        // 2. Fallback to ZenRows if direct fetch failed
+        Log.w("LinkRepository", "Direct fetch failed. Falling back to ZenRows for: $targetUrl")
+        return fetchHtmlWithZenRows(targetUrl)
+    }
+
+    private suspend fun fetchHtmlDirect(targetUrl: String): String? {
+        val request = Request.Builder()
+            .url(targetUrl)
+            .header(
+                "User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            )
+            .build()
+
+        return suspendCancellableCoroutine { continuation ->
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.w("LinkRepository", "Direct Fetch Failure: ${e.message}")
+                    continuation.resume(null)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (response.isSuccessful) {
+                        continuation.resume(response.body?.string())
+                    } else {
+                        Log.w(
+                            "LinkRepository",
+                            "Direct Fetch HTTP Error: ${response.code} ${response.message}"
+                        )
+                        continuation.resume(null)
+                    }
+                    response.close()
+                }
+            })
+        }
+    }
+
     private suspend fun fetchHtmlWithZenRows(targetUrl: String): String? {
         val apiKey = BuildConfig.ZENROWS_API_KEY
+        if (apiKey.isBlank()) {
+            Log.w("LinkRepository", "ZenRows API key is empty")
+            return null
+        }
+
         val encodedUrl = URLEncoder.encode(targetUrl, "UTF-8")
-        val zenRowsUrl =
-            "https://api.zenrows.com/v1/?apikey=$apiKey&url=$encodedUrl&js_render=true&premium_proxy=true"
+        val zenRowsUrl = "https://api.zenrows.com/v1/?apikey=$apiKey&url=$encodedUrl"
 
         val request = Request.Builder()
             .url(zenRowsUrl)

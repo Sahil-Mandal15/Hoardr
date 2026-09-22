@@ -8,6 +8,7 @@ fun LinkEntity.toDomain(): LinkModel {
         id = id,
         url = url,
         title = title,
+        imageUrl = imageUrl,
         timestamp = timestamp,
         isRead = isRead,
         status = status
@@ -19,6 +20,7 @@ fun LinkModel.toEntity(): LinkEntity {
         id = id,
         url = url,
         title = title,
+        imageUrl = imageUrl,
         timestamp = timestamp,
         isRead = isRead,
         status = status

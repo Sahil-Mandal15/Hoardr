@@ -8,9 +8,6 @@ interface LinkRepository {
     fun getAllLinks(): Flow<List<LinkModel>>
 
     suspend fun getLinkById(id: Long): LinkModel?
-
-    suspend fun saveLink(link: LinkModel)
-
     suspend fun deleteLink(link: LinkModel)
     suspend fun performEnhancement(link: LinkModel)
 }

@@ -33,7 +33,6 @@ class SampleViewModel @Inject constructor(
                 isRead = false,
                 status = Status.UNPROCESSED
             )
-          //  linkRepository.saveLink(mockLink)
             linkRepository.performEnhancement(mockLink)
         }
     }

@@ -7,6 +7,7 @@ data class LinkModel (
     val id: Long,
     val url: String?,
     val title: String? = null,
+    val imageUrl: String? = null,
     val timestamp: Long,
     val isRead: Boolean,
     val status: Status

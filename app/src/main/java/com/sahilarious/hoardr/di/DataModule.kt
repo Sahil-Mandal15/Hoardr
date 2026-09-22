@@ -24,19 +24,16 @@ object DataModule {
             context,
             HoardrDatabase::class.java,
             "hoardr_db"
-        ).build()
+        ).fallbackToDestructiveMigration(dropAllTables = true).build()
     }
 
     @Provides
     fun provideHoardrDao(hoardrDatabase: HoardrDatabase) = hoardrDatabase.hoardrDao()
 
     @Provides
-    fun provideAppContext(@ApplicationContext context: Context): Context = context
-
-    @Provides
     fun provideLinkRepository(
         hoardrDao: HoardrDao,
         context: Context,
         @ScraperClient scraperClient: OkHttpClient
-    ): LinkRepository = LinkRepositoryImpl(hoardrDao, context, scraperClient)
+    ): LinkRepository = LinkRepositoryImpl(hoardrDao, scraperClient)
 }
