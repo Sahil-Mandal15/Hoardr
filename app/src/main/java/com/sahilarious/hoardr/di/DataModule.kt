@@ -33,7 +33,6 @@ object DataModule {
     @Provides
     fun provideLinkRepository(
         hoardrDao: HoardrDao,
-        context: Context,
         @ScraperClient scraperClient: OkHttpClient
     ): LinkRepository = LinkRepositoryImpl(hoardrDao, scraperClient)
 }

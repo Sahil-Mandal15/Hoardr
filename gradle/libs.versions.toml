@@ -17,6 +17,7 @@ room = "2.8.5"
 ksp = "2.2.10-2.0.2"
 hilt = "2.60.1"
 coil = "2.7.0"
+uiUnit = "1.12.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +47,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+androidx-compose-ui-unit = { group = "androidx.compose.ui", name = "ui-unit", version.ref = "uiUnit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
