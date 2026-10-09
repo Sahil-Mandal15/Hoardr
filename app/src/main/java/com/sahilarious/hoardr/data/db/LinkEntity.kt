@@ -10,8 +10,10 @@ data class LinkEntity(
     val id: Long,
     val url: String?,
     val title: String?,
+    val description: String? = null,
     val imageUrl: String?,
+    val category: String = "Article",
     val timestamp: Long,
     val isRead: Boolean,
-    val status: Status
+    val status: Status,
 )

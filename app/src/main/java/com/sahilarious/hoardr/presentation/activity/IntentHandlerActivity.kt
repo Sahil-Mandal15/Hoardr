@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import com.sahilarious.hoardr.presentation.viewmodel.SampleViewModel
+import com.sahilarious.hoardr.presentation.viewmodel.ShareViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class IntentHandlerActivity : ComponentActivity() {
 
-    private val viewModel: SampleViewModel by viewModels()
+    private val viewModel: ShareViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +28,6 @@ class IntentHandlerActivity : ComponentActivity() {
         if (intent?.action == Intent.ACTION_SEND && intent.type?.startsWith("text/") == true) {
             val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
             if (sharedText != null) {
-                // Delegate to ViewModel's existing method
                 viewModel.insertLink(url = sharedText)
                 Toast.makeText(this, "Hoarded: $sharedText", Toast.LENGTH_SHORT).show()
             }

@@ -1,6 +1,5 @@
 package com.sahilarious.hoardr.data.repository
 
-import android.content.Context
 import android.util.Log
 import com.sahilarious.hoardr.BuildConfig
 import com.sahilarious.hoardr.app.core.Status
@@ -85,9 +84,30 @@ class LinkRepositoryImpl @Inject constructor(
                         }
                     }.ifBlank { null }
 
+                    val ogDesc = document.select("meta[property=og:description]").attr("content")
+                    val twitterDesc = document.select("meta[name=twitter:description]").attr("content")
+                    val metaDesc = document.select("meta[name=description]").attr("content")
+                    val pSnippet = document.select("p").map { it.text().trim() }.firstOrNull { it.length > 20 }
+
+                    val description = when {
+                        ogDesc.isNotBlank() -> ogDesc
+                        twitterDesc.isNotBlank() -> twitterDesc
+                        metaDesc.isNotBlank() -> metaDesc
+                        !pSnippet.isNullOrBlank() -> pSnippet
+                        else -> null
+                    }
+
                     if (!title.isNullOrEmpty()) {
-                        Log.d("LinkRepository", "Successfully fetched title: $title, imageUrl: $imageUrl")
-                        saveLink(link.copy(title = title, imageUrl = imageUrl, status = Status.PROCESSED))
+                        Log.d("LinkRepository", "Successfully fetched title: $title, imageUrl: $imageUrl, desc: $description")
+                        saveLink(
+                            link.copy(
+                                title = title,
+                                description = description,
+                                imageUrl = imageUrl,
+                                category = link.category,
+                                status = Status.PROCESSED
+                            )
+                        )
                     } else {
                         Log.w("LinkRepository", "No title found in HTML for $sanitizedUrl")
                         saveLink(link.copy(status = Status.FAILED))
