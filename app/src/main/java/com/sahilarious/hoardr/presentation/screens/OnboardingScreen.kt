@@ -34,6 +34,7 @@ import com.sahilarious.hoardr.presentation.ui.theme.hoardrColors
 
 @Composable
 fun HoardrWelcomeScreen(
+    onGetStartedClick: () -> Unit = {},
 ) {
     val colors = MaterialTheme.hoardrColors
 
@@ -84,7 +85,7 @@ fun HoardrWelcomeScreen(
             Spacer(modifier = Modifier.height(28.dp))
 
             OutlinedButton(
-                onClick = {},
+                onClick = onGetStartedClick,
                 modifier = Modifier
                     .width(230.dp)
                     .height(52.dp),
