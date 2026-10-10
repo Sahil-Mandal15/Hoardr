@@ -57,7 +57,6 @@ import com.sahilarious.hoardr.presentation.ui.theme.Quicksand
 import com.sahilarious.hoardr.presentation.ui.theme.hoardrColors
 import com.sahilarious.hoardr.presentation.viewmodel.HomeUiState
 import com.sahilarious.hoardr.presentation.viewmodel.HomeViewModel
-import com.sahilarious.hoardr.presentation.viewmodel.sampleShowcaseItems
 
 @Composable
 fun HomeScreen(
@@ -103,153 +102,194 @@ fun HomeScreenContent(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { isAddBottomSheetOpen = true },
-                containerColor = colors.primary,
-                contentColor = colors.textPrimary,
-                shape = CircleShape,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Hoard",
-                )
+            if (selectedNavIndex == 0) {
+                FloatingActionButton(
+                    onClick = { isAddBottomSheetOpen = true },
+                    containerColor = colors.primary,
+                    contentColor = colors.textPrimary,
+                    shape = CircleShape,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Hoard",
+                    )
+                }
             }
         },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp),
-        ) {
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Top Header Bar
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                HoardrHeaderLogo()
-
-                Box(
+        when (selectedNavIndex) {
+            0 -> {
+                Column(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(colors.surfaceVariant),
-                    contentAlignment = Alignment.Center,
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 20.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
-                        contentDescription = "Profile",
-                        tint = colors.textPrimary,
-                        modifier = Modifier.size(22.dp),
-                    )
-                }
-            }
+                    Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Greeting Section
-            Text(
-                text = "Greetings, Anon 🚀",
-                fontFamily = Caveat,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = colors.textPrimary,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Here are your saved articles, notes and ideas.",
-                fontFamily = Quicksand,
-                fontSize = 14.sp,
-                color = colors.textSecondary,
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Category Filter Chips Row
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                items(categories) { category ->
-                    val isSelected = category == uiState.selectedCategory
-                    val chipBg = if (isSelected) colors.primary else colors.surfaceVariant
-                    val chipTextColor = if (isSelected) colors.textPrimary else colors.textSecondary
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(chipBg)
-                            .clickable { onCategorySelected(category) }
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
-                        contentAlignment = Alignment.Center,
+                    // Top Header Bar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = category,
-                            fontFamily = Quicksand,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                            fontSize = 14.sp,
-                            color = chipTextColor,
-                        )
+                        HoardrHeaderLogo()
+
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(colors.surfaceVariant),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = "Profile",
+                                tint = colors.textPrimary,
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Greeting Section
+                    Text(
+                        text = "Greetings, Anon 🚀",
+                        fontFamily = Caveat,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.textPrimary,
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Here are your saved articles, notes and ideas.",
+                        fontFamily = Quicksand,
+                        fontSize = 14.sp,
+                        color = colors.textSecondary,
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Category Filter Chips Row
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        items(categories) { category ->
+                            val isSelected = category == uiState.selectedCategory
+                            val chipBg = if (isSelected) colors.primary else colors.surfaceVariant
+                            val chipTextColor = if (isSelected) colors.textPrimary else colors.textSecondary
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(chipBg)
+                                    .clickable { onCategorySelected(category) }
+                                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = category,
+                                    fontFamily = Quicksand,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                    fontSize = 14.sp,
+                                    color = chipTextColor,
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    // Saved Items List or Empty State
+                    if (uiState.items.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Your hoard is empty for now.",
+                                fontFamily = Quicksand,
+                                fontSize = 15.sp,
+                                color = colors.textTertiary,
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(14.dp),
+                            contentPadding = PaddingValues(bottom = 16.dp),
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            items(uiState.items, key = { it.id }) { item ->
+                                HoardrItemCard(
+                                    item = item,
+                                    onItemClick = {
+                                        val rawUrl = item.rawUrl?.trim()
+                                        if (!rawUrl.isNullOrBlank()) {
+                                            val formattedUrl = if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
+                                                "https://$rawUrl"
+                                            } else {
+                                                rawUrl
+                                            }
+                                            try {
+                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(formattedUrl))
+                                                val chooser = Intent.createChooser(intent, "Open with")
+                                                context.startActivity(chooser)
+                                            } catch (_: Exception) {
+                                                Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    },
+                                    onMarkAsReadClick = {
+                                        onMarkAsRead(item)
+                                    },
+                                    onDeleteClick = {
+                                        onDeleteItem(item)
+                                    },
+                                )
+                            }
+                        }
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            // Saved Items List or Empty State
-            if (uiState.items.isEmpty()) {
+            1 -> {
+                ExploreScreen(
+                    modifier = Modifier.padding(innerPadding),
+                )
+            }
+            2 -> {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Your hoard is empty for now.",
+                        text = "Priority Hoards coming soon ✨",
                         fontFamily = Quicksand,
-                        fontSize = 15.sp,
-                        color = colors.textTertiary,
+                        fontSize = 16.sp,
+                        color = colors.textSecondary,
                     )
                 }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp),
-                    modifier = Modifier.fillMaxSize(),
+            }
+            3 -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    items(uiState.items, key = { it.id }) { item ->
-                        HoardrItemCard(
-                            item = item,
-                            onItemClick = {
-                                val rawUrl = item.rawUrl?.trim()
-                                if (!rawUrl.isNullOrBlank()) {
-                                    val formattedUrl = if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
-                                        "https://$rawUrl"
-                                    } else {
-                                        rawUrl
-                                    }
-                                    try {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(formattedUrl))
-                                        val chooser = Intent.createChooser(intent, "Open with")
-                                        context.startActivity(chooser)
-                                    } catch (_: Exception) {
-                                        Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            },
-                            onMarkAsReadClick = {
-                                onMarkAsRead(item)
-                            },
-                            onDeleteClick = {
-                                onDeleteItem(item)
-                            },
-                        )
-                    }
+                    Text(
+                        text = "Profile & Settings coming soon 🚀",
+                        fontFamily = Quicksand,
+                        fontSize = 16.sp,
+                        color = colors.textSecondary,
+                    )
                 }
             }
         }
@@ -272,7 +312,7 @@ private fun HomeScreenPreview() {
     HoardrTheme(darkTheme = true) {
         HomeScreenContent(
             uiState = HomeUiState(
-                items = sampleShowcaseItems,
+                items = emptyList(),
                 selectedCategory = "All",
             ),
             onCategorySelected = {},

@@ -23,49 +23,6 @@ data class HomeUiState(
     val isLoading: Boolean = false,
 )
 
-val sampleShowcaseItems = listOf(
-    HoardrUiItem(
-        id = -1,
-        title = "The Psychology of Better Habits",
-        category = ItemCategory.ARTICLE,
-        sourceOrFolder = "medium.com",
-        timeAgo = "2 days ago",
-        imageUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    ),
-    HoardrUiItem(
-        id = -2,
-        title = "Android ViewModel – Quick Notes",
-        category = ItemCategory.NOTE,
-        sourceOrFolder = "My Notes",
-        timeAgo = "3 days ago",
-        imageUrl = "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
-    ),
-    HoardrUiItem(
-        id = -3,
-        title = "Build a minimal habit tracker app",
-        category = ItemCategory.IDEA,
-        sourceOrFolder = "Personal Ideas",
-        timeAgo = "5 days ago",
-        imageUrl = "https://images.unsplash.com/photo-1517842645767-c639042777db",
-    ),
-    HoardrUiItem(
-        id = -4,
-        title = "Shutter Island – Why it still hits different",
-        category = ItemCategory.ARTICLE,
-        sourceOrFolder = "theatlantic.com",
-        timeAgo = "6 days ago",
-        imageUrl = "https://images.unsplash.com/photo-1518709268805-4e9042af9f23",
-    ),
-    HoardrUiItem(
-        id = -5,
-        title = "Kolkata places to visit this winter",
-        category = ItemCategory.NOTE,
-        sourceOrFolder = "Travel Plans",
-        timeAgo = "1 week ago",
-        imageUrl = "https://images.unsplash.com/photo-1513694203232-719a280e022f",
-    ),
-)
-
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val linkRepository: LinkRepository,
@@ -108,7 +65,9 @@ class HomeViewModel @Inject constructor(
 
             val finalTitle = when {
                 extractedFromTitle != null -> null
-                !finalUrl.isNullOrBlank() && title.trim().equals(finalUrl, ignoreCase = true) -> null
+                !finalUrl.isNullOrBlank() && title.trim()
+                    .equals(finalUrl, ignoreCase = true) -> null
+
                 title.isNotBlank() -> title.trim()
                 else -> null
             }
@@ -130,7 +89,8 @@ class HomeViewModel @Inject constructor(
     private fun extractUrl(text: String?): String? {
         if (text.isNullOrBlank()) return null
         val trimmed = text.trim()
-        val urlRegex = Regex("""(?i)\b(?:https?://|www\.)[^\s<>"'()]+\b|\b[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/[^\s<>"'()]*)?\b""")
+        val urlRegex =
+            Regex("""(?i)\b(?:https?://|www\.)[^\s<>"'()]+\b|\b[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/[^\s<>"'()]*)?\b""")
         val match = urlRegex.find(trimmed)?.value
         if (match != null) {
             return if (!match.startsWith("http://") && !match.startsWith("https://")) {
