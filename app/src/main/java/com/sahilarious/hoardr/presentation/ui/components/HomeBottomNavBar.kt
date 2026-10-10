@@ -2,11 +2,11 @@ package com.sahilarious.hoardr.presentation.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -32,7 +32,7 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem("Home", Icons.Filled.Home, Icons.Outlined.Home),
     BottomNavItem("Explore", Icons.Outlined.Explore, Icons.Outlined.Explore),
-    BottomNavItem("Saved", Icons.Outlined.BookmarkBorder, Icons.Outlined.BookmarkBorder),
+    BottomNavItem("Priority", Icons.Outlined.Star, Icons.Outlined.Star),
     BottomNavItem("Profile", Icons.Outlined.Person, Icons.Outlined.PersonOutline),
 )
 

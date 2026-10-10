@@ -24,7 +24,7 @@ class ShareViewModel @Inject constructor(
                 isRead = false,
                 status = Status.UNPROCESSED,
             )
-            linkRepository.performEnhancement(link)
+            linkRepository.addLink(link)
         }
     }
 }

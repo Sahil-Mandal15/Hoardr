@@ -14,17 +14,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,11 +52,17 @@ import com.sahilarious.hoardr.presentation.ui.theme.hoardrColors
 fun HoardrItemCard(
     item: HoardrUiItem,
     modifier: Modifier = Modifier,
+    onItemClick: (() -> Unit)? = null,
+    onMarkAsReadClick: (() -> Unit)? = null,
+    onDeleteClick: (() -> Unit)? = null,
     onMoreClick: (() -> Unit)? = null,
 ) {
     val colors = MaterialTheme.hoardrColors
+    var isMenuExpanded by remember { mutableStateOf(false) }
 
     Card(
+        onClick = { onItemClick?.invoke() },
+        enabled = onItemClick != null,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
@@ -97,15 +111,72 @@ fun HoardrItemCard(
                 ) {
                     CategoryBadge(category = item.category)
 
-                    IconButton(
-                        onClick = { onMoreClick?.invoke() },
-                        modifier = Modifier.size(24.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.MoreHoriz,
-                            contentDescription = "More options",
-                            tint = colors.textTertiary,
-                        )
+                    Box {
+                        IconButton(
+                            onClick = {
+                                onMoreClick?.invoke()
+                                isMenuExpanded = true
+                            },
+                            modifier = Modifier.size(24.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoreHoriz,
+                                contentDescription = "More options",
+                                tint = colors.textTertiary,
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false },
+                            modifier = Modifier.background(colors.surface),
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "Mark as read",
+                                        fontFamily = Quicksand,
+                                        fontSize = 14.sp,
+                                        color = colors.textPrimary,
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.CheckCircle,
+                                        contentDescription = "Mark as read",
+                                        tint = colors.textSecondary,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    onMarkAsReadClick?.invoke()
+                                },
+                            )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "Delete",
+                                        fontFamily = Quicksand,
+                                        fontSize = 14.sp,
+                                        color = colors.error,
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Delete,
+                                        contentDescription = "Delete",
+                                        tint = colors.error,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    onDeleteClick?.invoke()
+                                },
+                            )
+                        }
                     }
                 }
 

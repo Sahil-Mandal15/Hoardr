@@ -6,8 +6,11 @@ import kotlinx.coroutines.flow.Flow
 interface LinkRepository {
 
     fun getAllLinks(): Flow<List<LinkModel>>
+    fun getUnreadLinks(): Flow<List<LinkModel>>
 
     suspend fun getLinkById(id: Long): LinkModel?
+    suspend fun addLink(link: LinkModel)
     suspend fun deleteLink(link: LinkModel)
+    suspend fun updateReadStatus(id: Long, isRead: Boolean)
     suspend fun performEnhancement(link: LinkModel)
 }

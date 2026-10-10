@@ -36,6 +36,10 @@ class LinkRepositoryImpl @Inject constructor(
         entityList.map { it.toDomain() }
     }
 
+    override fun getUnreadLinks(): Flow<List<LinkModel>> = hoardrDao.getUnreadLinks().map { entityList ->
+        entityList.map { it.toDomain() }
+    }
+
     override suspend fun getLinkById(id: Long): LinkModel? {
         return hoardrDao.getAllLinks()
             .map { entities -> entities.map { it.toDomain() } }
@@ -43,12 +47,25 @@ class LinkRepositoryImpl @Inject constructor(
             ?.firstOrNull { it.id == id }
     }
 
-    private suspend fun saveLink(link: LinkModel) {
-        hoardrDao.insertLink(link.toEntity())
+    private suspend fun saveLink(link: LinkModel): Long {
+        return hoardrDao.insertLink(link.toEntity())
+    }
+
+    override suspend fun addLink(link: LinkModel) {
+        if (!link.url.isNullOrBlank()) {
+            val savedId = saveLink(link)
+            performEnhancement(link.copy(id = savedId))
+        } else {
+            saveLink(link.copy(status = Status.PROCESSED))
+        }
     }
 
     override suspend fun deleteLink(link: LinkModel) {
         hoardrDao.deleteLinkById(link.toEntity())
+    }
+
+    override suspend fun updateReadStatus(id: Long, isRead: Boolean) {
+        hoardrDao.updateReadStatus(id, isRead)
     }
 
     override suspend fun performEnhancement(link: LinkModel) {
@@ -97,12 +114,15 @@ class LinkRepositoryImpl @Inject constructor(
                         else -> null
                     }
 
-                    if (!title.isNullOrEmpty()) {
-                        Log.d("LinkRepository", "Successfully fetched title: $title, imageUrl: $imageUrl, desc: $description")
+                    val titleToSave = if (!link.title.isNullOrBlank()) link.title else title.ifBlank { null }
+                    val descriptionToSave = if (!link.description.isNullOrBlank()) link.description else description
+
+                    if (!titleToSave.isNullOrEmpty()) {
+                        Log.d("LinkRepository", "Successfully fetched title: $titleToSave, imageUrl: $imageUrl, desc: $descriptionToSave")
                         saveLink(
                             link.copy(
-                                title = title,
-                                description = description,
+                                title = titleToSave,
+                                description = descriptionToSave,
                                 imageUrl = imageUrl,
                                 category = link.category,
                                 status = Status.PROCESSED

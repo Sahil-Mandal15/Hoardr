@@ -16,6 +16,7 @@ data class HoardrUiItem(
     val timeAgo: String,
     val imageUrl: String?,
     val rawUrl: String? = null,
+    val isRead: Boolean = false,
 )
 
 fun LinkModel.toUiItem(): HoardrUiItem {
@@ -41,6 +42,7 @@ fun LinkModel.toUiItem(): HoardrUiItem {
         timeAgo = formatTimeAgo(timestamp),
         imageUrl = imageUrl,
         rawUrl = url,
+        isRead = isRead,
     )
 }
 
