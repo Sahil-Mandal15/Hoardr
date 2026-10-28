@@ -7,9 +7,10 @@ import com.sahilarious.hoardr.presentation.model.HoardrUiItem
 import com.sahilarious.hoardr.presentation.model.ItemCategory
 import com.sahilarious.hoardr.presentation.model.toUiItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,27 +25,42 @@ class ExploreViewModel @Inject constructor(
     private val linkRepository: LinkRepository,
 ) : ViewModel() {
 
-    val uiState: StateFlow<ExploreUiState> = linkRepository.getUnreadLinks()
-        .map { dbLinks ->
-            val articles = dbLinks
-                .map { it.toUiItem() }
-                .filter { it.category == ItemCategory.ARTICLE }
-            ExploreUiState(
-                articles = articles,
-                isLoading = false,
-            )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ExploreUiState(isLoading = true),
+    private val _dismissedIds = MutableStateFlow<Set<Long>>(emptySet())
+
+    val uiState: StateFlow<ExploreUiState> = combine(
+        linkRepository.getUnreadLinks(),
+        _dismissedIds,
+    ) { dbLinks, dismissedIds ->
+        val articles = dbLinks
+            .map { it.toUiItem() }
+            .filter { it.category == ItemCategory.ARTICLE && !dismissedIds.contains(it.id) }
+        ExploreUiState(
+            articles = articles,
+            isLoading = false,
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ExploreUiState(isLoading = true),
+    )
 
     fun deleteArticle(item: HoardrUiItem) {
         if (item.id < 0) return
         viewModelScope.launch {
             val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
             linkRepository.deleteLink(linkModel)
+        }
+    }
+
+    fun dismissArticle(item: HoardrUiItem) {
+        if (item.id < 0) return
+        _dismissedIds.value = _dismissedIds.value + item.id
+    }
+
+    fun markAsRead(item: HoardrUiItem) {
+        if (item.id < 0) return
+        viewModelScope.launch {
+            linkRepository.updateReadStatus(item.id, isRead = true)
         }
     }
 }

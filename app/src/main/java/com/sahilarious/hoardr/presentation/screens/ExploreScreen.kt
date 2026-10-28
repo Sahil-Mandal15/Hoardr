@@ -20,13 +20,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -156,113 +158,73 @@ fun ExploreScreen(
             } else {
                 val visibleArticles = articles.take(3).reversed()
                 visibleArticles.forEachIndexed { index, item ->
-                    val isTopCard = index == visibleArticles.lastIndex
-                    SwipeableArticleCard(
-                        item = item,
-                        isTopCard = isTopCard,
-                        onSwipeLeft = {
-                            viewModel.deleteArticle(item)
-                        },
-                        onSwipeRight = {
-                            // Keep pending (remains in hoard)
-                        },
-                        onCardClick = {
-                            val rawUrl = item.rawUrl?.trim()
-                            if (!rawUrl.isNullOrBlank()) {
-                                val formattedUrl = if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
-                                    "https://$rawUrl"
-                                } else {
-                                    rawUrl
+                    key(item.id) {
+                        val isTopCard = index == visibleArticles.lastIndex
+                        SwipeableArticleCard(
+                            item = item,
+                            isTopCard = isTopCard,
+                            onSwipeLeft = {
+                                viewModel.deleteArticle(item)
+                            },
+                            onSwipeRight = {
+                                viewModel.dismissArticle(item)
+                            },
+                            onCardClick = {
+                                val rawUrl = item.rawUrl?.trim()
+                                if (!rawUrl.isNullOrBlank()) {
+                                    val formattedUrl = if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
+                                        "https://$rawUrl"
+                                    } else {
+                                        rawUrl
+                                    }
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(formattedUrl))
+                                        val chooser = Intent.createChooser(intent, "Open with")
+                                        context.startActivity(chooser)
+                                    } catch (_: Exception) {
+                                        Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                                try {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(formattedUrl))
-                                    val chooser = Intent.createChooser(intent, "Open with")
-                                    context.startActivity(chooser)
-                                } catch (_: Exception) {
-                                    Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        },
-                    )
+                            },
+                        )
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Action Buttons Row
+        // Action Button
         if (articles.isNotEmpty()) {
             val topItem = articles.first()
 
-            Row(
+            Button(
+                onClick = {
+                    viewModel.markAsRead(topItem)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(50.dp)
                     .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
+                shape = RoundedCornerShape(25.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colors.primary,
+                    contentColor = colors.onPrimary,
+                ),
             ) {
-                // Delete Button
-                IconButton(
-                    onClick = { viewModel.deleteArticle(topItem) },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(colors.surface, CircleShape),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Delete",
-                        tint = colors.error,
-                        modifier = Modifier.size(28.dp),
-                    )
-                }
-
-                // Open in Browser Button
-                IconButton(
-                    onClick = {
-                        val rawUrl = topItem.rawUrl?.trim()
-                        if (!rawUrl.isNullOrBlank()) {
-                            val formattedUrl = if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
-                                "https://$rawUrl"
-                            } else {
-                                rawUrl
-                            }
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(formattedUrl))
-                                val chooser = Intent.createChooser(intent, "Open with")
-                                context.startActivity(chooser)
-                            } catch (_: Exception) {
-                                Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .size(54.dp)
-                        .background(colors.surface, CircleShape),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.OpenInNew,
-                        contentDescription = "Open URL",
-                        tint = colors.primary,
-                        modifier = Modifier.size(22.dp),
-                    )
-                }
-
-                // Keep Pending Button
-                IconButton(
-                    onClick = {
-                        // Keep pending
-                    },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(colors.surface, CircleShape),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Done,
-                        contentDescription = "Keep Pending",
-                        tint = colors.success,
-                        modifier = Modifier.size(28.dp),
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Done,
+                    contentDescription = null,
+                    tint = colors.onPrimary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Mark as Read",
+                    fontFamily = Quicksand,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                )
             }
         }
     }

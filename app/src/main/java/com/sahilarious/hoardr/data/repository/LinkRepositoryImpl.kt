@@ -52,12 +52,30 @@ class LinkRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addLink(link: LinkModel) {
-        if (!link.url.isNullOrBlank()) {
-            val savedId = saveLink(link)
-            performEnhancement(link.copy(id = savedId))
+        val extractedUrl = extractUrl(link.url)
+        if (!extractedUrl.isNullOrBlank()) {
+            val linkToSave = link.copy(url = extractedUrl)
+            val savedId = saveLink(linkToSave)
+            performEnhancement(linkToSave.copy(id = savedId))
         } else {
-            saveLink(link.copy(status = Status.PROCESSED))
+            saveLink(link.copy(url = null, status = Status.PROCESSED))
         }
+    }
+
+    private fun extractUrl(text: String?): String? {
+        if (text.isNullOrBlank()) return null
+        val trimmed = text.trim()
+        val urlRegex =
+            Regex("""(?i)\b(?:https?://|www\.)[^\s<>"'()]+\b|\b[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/[^\s<>"'()]*)?\b""")
+        val match = urlRegex.find(trimmed)?.value
+        if (match != null) {
+            return if (!match.startsWith("http://") && !match.startsWith("https://")) {
+                "https://$match"
+            } else {
+                match
+            }
+        }
+        return null
     }
 
     override suspend fun deleteLink(link: LinkModel) {
