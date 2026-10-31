@@ -117,6 +117,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun togglePriority(item: HoardrUiItem) {
+        if (item.id < 0) return
+        viewModelScope.launch {
+            val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
+            linkRepository.updatePriority(item.id, !linkModel.isPriority)
+        }
+    }
+
     private fun filterItems(items: List<HoardrUiItem>, category: String): List<HoardrUiItem> {
         return when (category) {
             "Articles" -> items.filter { it.category == ItemCategory.ARTICLE }

@@ -63,4 +63,12 @@ class ExploreViewModel @Inject constructor(
             linkRepository.updateReadStatus(item.id, isRead = true)
         }
     }
+
+    fun togglePriority(item: HoardrUiItem) {
+        if (item.id < 0) return
+        viewModelScope.launch {
+            val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
+            linkRepository.updatePriority(item.id, !linkModel.isPriority)
+        }
+    }
 }

@@ -71,6 +71,7 @@ fun HomeScreen(
         onSaveHoard = viewModel::addHoard,
         onDeleteItem = viewModel::deleteItem,
         onMarkAsRead = viewModel::markAsRead,
+        onPriorityClick = viewModel::togglePriority,
         modifier = modifier,
     )
 }
@@ -84,6 +85,7 @@ fun HomeScreenContent(
     onDeleteItem: (HoardrUiItem) -> Unit,
     modifier: Modifier = Modifier,
     onMarkAsRead: (HoardrUiItem) -> Unit = {},
+    onPriorityClick: (HoardrUiItem) -> Unit = {},
 ) {
     val context = LocalContext.current
     val colors = MaterialTheme.hoardrColors
@@ -251,6 +253,9 @@ fun HomeScreenContent(
                                     onDeleteClick = {
                                         onDeleteItem(item)
                                     },
+                                    onPriorityClick = {
+                                        onPriorityClick(item)
+                                    },
                                 )
                             }
                         }
@@ -263,19 +268,9 @@ fun HomeScreenContent(
                 )
             }
             2 -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "Priority Hoards coming soon ✨",
-                        fontFamily = Quicksand,
-                        fontSize = 16.sp,
-                        color = colors.textSecondary,
-                    )
-                }
+                PriorityScreen(
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
             3 -> {
                 Box(

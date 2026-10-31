@@ -14,6 +14,7 @@ fun LinkEntity.toDomain(): LinkModel {
         timestamp = timestamp,
         isRead = isRead,
         status = status,
+        isPriority = isPriority,
     )
 }
 
@@ -28,5 +29,6 @@ fun LinkModel.toEntity(): LinkEntity {
         timestamp = timestamp,
         isRead = isRead,
         status = status,
+        isPriority = isPriority,
     )
 }

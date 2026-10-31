@@ -17,6 +17,7 @@ data class HoardrUiItem(
     val imageUrl: String?,
     val rawUrl: String? = null,
     val isRead: Boolean = false,
+    val isPriority: Boolean = false,
 )
 
 fun LinkModel.toUiItem(): HoardrUiItem {

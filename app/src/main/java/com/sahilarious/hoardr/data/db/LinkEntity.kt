@@ -16,4 +16,5 @@ data class LinkEntity(
     val timestamp: Long,
     val isRead: Boolean,
     val status: Status,
+    val isPriority: Boolean = false,
 )

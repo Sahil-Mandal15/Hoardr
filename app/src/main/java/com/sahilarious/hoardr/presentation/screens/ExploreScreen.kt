@@ -25,7 +25,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -198,33 +200,56 @@ fun ExploreScreen(
         if (articles.isNotEmpty()) {
             val topItem = articles.first()
 
-            Button(
-                onClick = {
-                    viewModel.markAsRead(topItem)
-                },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
                     .padding(bottom = 16.dp),
-                shape = RoundedCornerShape(25.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary,
-                ),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = Icons.Default.Done,
-                    contentDescription = null,
-                    tint = colors.onPrimary,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Mark as Read",
-                    fontFamily = Quicksand,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp,
-                )
+                Button(
+                    onClick = {
+                        viewModel.markAsRead(topItem)
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.primary,
+                        contentColor = colors.onPrimary,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Done,
+                        contentDescription = null,
+                        tint = colors.onPrimary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Mark as Read",
+                        fontFamily = Quicksand,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        viewModel.togglePriority(topItem)
+                    },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .background(colors.surfaceVariant, RoundedCornerShape(25.dp)),
+                ) {
+                    Icon(
+                        imageVector = if (topItem.isPriority) Icons.Filled.Star else Icons.Outlined.Star,
+                        contentDescription = "Priority",
+                        tint = if (topItem.isPriority) colors.accent else colors.textPrimary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
             }
         }
     }

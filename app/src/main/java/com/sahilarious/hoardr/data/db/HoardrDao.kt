@@ -21,6 +21,12 @@ interface HoardrDao {
     @Query("SELECT * FROM LinkEntity WHERE isRead = 0 OR LOWER(category) != 'article'")
     fun getUnreadLinks(): Flow<List<LinkEntity>>
 
+    @Query("SELECT * FROM LinkEntity WHERE isPriority = 1")
+    fun getPriorityLinks(): Flow<List<LinkEntity>>
+
     @Query("UPDATE LinkEntity SET isRead = :isRead WHERE id = :id")
     suspend fun updateReadStatus(id: Long, isRead: Boolean)
+
+    @Query("UPDATE LinkEntity SET isPriority = :isPriority WHERE id = :id")
+    suspend fun updatePriority(id: Long, isPriority: Boolean)
 }

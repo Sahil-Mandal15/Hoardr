@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -55,6 +57,7 @@ fun HoardrItemCard(
     onItemClick: (() -> Unit)? = null,
     onMarkAsReadClick: (() -> Unit)? = null,
     onDeleteClick: (() -> Unit)? = null,
+    onPriorityClick: (() -> Unit)? = null,
     onMoreClick: (() -> Unit)? = null,
 ) {
     val colors = MaterialTheme.hoardrColors
@@ -131,6 +134,29 @@ fun HoardrItemCard(
                             onDismissRequest = { isMenuExpanded = false },
                             modifier = Modifier.background(colors.surface),
                         ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "Priority",
+                                        fontFamily = Quicksand,
+                                        fontSize = 14.sp,
+                                        color = colors.textPrimary,
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = if (item.isPriority) Icons.Filled.Star else Icons.Outlined.Star,
+                                        contentDescription = "Priority",
+                                        tint = if (item.isPriority) colors.accent else colors.textSecondary,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    onPriorityClick?.invoke()
+                                },
+                            )
+
                             DropdownMenuItem(
                                 text = {
                                     Text(

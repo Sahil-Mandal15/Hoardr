@@ -12,4 +12,5 @@ data class LinkModel(
     val timestamp: Long,
     val isRead: Boolean,
     val status: Status,
+    val isPriority: Boolean = false,
 )

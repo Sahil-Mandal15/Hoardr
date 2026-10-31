@@ -40,6 +40,10 @@ class LinkRepositoryImpl @Inject constructor(
         entityList.map { it.toDomain() }
     }
 
+    override fun getPriorityLinks(): Flow<List<LinkModel>> = hoardrDao.getPriorityLinks().map { entityList ->
+        entityList.map { it.toDomain() }
+    }
+
     override suspend fun getLinkById(id: Long): LinkModel? {
         return hoardrDao.getAllLinks()
             .map { entities -> entities.map { it.toDomain() } }
@@ -84,6 +88,10 @@ class LinkRepositoryImpl @Inject constructor(
 
     override suspend fun updateReadStatus(id: Long, isRead: Boolean) {
         hoardrDao.updateReadStatus(id, isRead)
+    }
+
+    override suspend fun updatePriority(id: Long, isPriority: Boolean) {
+        hoardrDao.updatePriority(id, isPriority)
     }
 
     override suspend fun performEnhancement(link: LinkModel) {
