@@ -26,13 +26,19 @@ class ExploreViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _dismissedIds = MutableStateFlow<Set<Long>>(emptySet())
+    private val _priorityOverrides = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
 
     val uiState: StateFlow<ExploreUiState> = combine(
         linkRepository.getUnreadLinks(),
         _dismissedIds,
-    ) { dbLinks, dismissedIds ->
+        _priorityOverrides,
+    ) { dbLinks, dismissedIds, priorityOverrides ->
         val articles = dbLinks
-            .map { it.toUiItem() }
+            .map { link ->
+                val uiItem = link.toUiItem()
+                val isPriority = priorityOverrides[uiItem.id] ?: uiItem.isPriority
+                uiItem.copy(isPriority = isPriority)
+            }
             .filter { it.category == ItemCategory.ARTICLE && !dismissedIds.contains(it.id) }
         ExploreUiState(
             articles = articles,
@@ -47,8 +53,7 @@ class ExploreViewModel @Inject constructor(
     fun deleteArticle(item: HoardrUiItem) {
         if (item.id < 0) return
         viewModelScope.launch {
-            val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
-            linkRepository.deleteLink(linkModel)
+            linkRepository.deleteLink(item.id)
         }
     }
 
@@ -66,9 +71,10 @@ class ExploreViewModel @Inject constructor(
 
     fun togglePriority(item: HoardrUiItem) {
         if (item.id < 0) return
+        val newPriority = !item.isPriority
+        _priorityOverrides.value = _priorityOverrides.value + (item.id to newPriority)
         viewModelScope.launch {
-            val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
-            linkRepository.updatePriority(item.id, !linkModel.isPriority)
+            linkRepository.updatePriority(item.id, newPriority)
         }
     }
 }

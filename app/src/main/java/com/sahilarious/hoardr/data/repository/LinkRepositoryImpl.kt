@@ -82,8 +82,8 @@ class LinkRepositoryImpl @Inject constructor(
         return null
     }
 
-    override suspend fun deleteLink(link: LinkModel) {
-        hoardrDao.deleteLinkById(link.toEntity())
+    override suspend fun deleteLink(id: Long) {
+        hoardrDao.deleteLinkById(id)
     }
 
     override suspend fun updateReadStatus(id: Long, isRead: Boolean) {

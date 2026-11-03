@@ -1,7 +1,6 @@
 package com.sahilarious.hoardr.data.db
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -12,8 +11,8 @@ interface HoardrDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLink(linkEntity: LinkEntity): Long
 
-    @Delete
-    suspend fun deleteLinkById(entity: LinkEntity)
+    @Query("DELETE FROM LinkEntity WHERE id = :id")
+    suspend fun deleteLinkById(id: Long)
 
     @Query("SELECT * FROM LinkEntity")
     fun getAllLinks(): Flow<List<LinkEntity>>

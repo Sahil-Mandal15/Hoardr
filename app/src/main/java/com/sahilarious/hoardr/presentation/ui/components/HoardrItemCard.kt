@@ -21,7 +21,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -137,7 +137,7 @@ fun HoardrItemCard(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = "Priority",
+                                        text = if (item.isPriority) "Remove priority" else "Priority",
                                         fontFamily = Quicksand,
                                         fontSize = 14.sp,
                                         color = colors.textPrimary,
@@ -145,8 +145,8 @@ fun HoardrItemCard(
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = if (item.isPriority) Icons.Filled.Star else Icons.Outlined.Star,
-                                        contentDescription = "Priority",
+                                        imageVector = if (item.isPriority) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                        contentDescription = if (item.isPriority) "Remove priority" else "Priority",
                                         tint = if (item.isPriority) colors.accent else colors.textSecondary,
                                         modifier = Modifier.size(18.dp),
                                     )

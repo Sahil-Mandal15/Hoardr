@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [LinkEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class HoardrDatabase : RoomDatabase() {

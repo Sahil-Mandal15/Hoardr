@@ -27,12 +27,18 @@ class PriorityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow("All")
+    private val _priorityOverrides = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
 
     val uiState: StateFlow<PriorityUiState> = combine(
         linkRepository.getPriorityLinks(),
         _selectedCategory,
-    ) { dbLinks, category ->
-        val uiItems = dbLinks.map { it.toUiItem() }
+        _priorityOverrides,
+    ) { dbLinks, category, priorityOverrides ->
+        val uiItems = dbLinks.map { link ->
+            val uiItem = link.toUiItem()
+            val isPriority = priorityOverrides[uiItem.id] ?: uiItem.isPriority
+            uiItem.copy(isPriority = isPriority)
+        }
         PriorityUiState(
             items = filterItems(uiItems, category),
             selectedCategory = category,
@@ -51,8 +57,7 @@ class PriorityViewModel @Inject constructor(
     fun deleteItem(item: HoardrUiItem) {
         if (item.id < 0) return
         viewModelScope.launch {
-            val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
-            linkRepository.deleteLink(linkModel)
+            linkRepository.deleteLink(item.id)
         }
     }
 
@@ -65,9 +70,10 @@ class PriorityViewModel @Inject constructor(
 
     fun togglePriority(item: HoardrUiItem) {
         if (item.id < 0) return
+        val newPriority = !item.isPriority
+        _priorityOverrides.value = _priorityOverrides.value + (item.id to newPriority)
         viewModelScope.launch {
-            val linkModel = linkRepository.getLinkById(item.id) ?: return@launch
-            linkRepository.updatePriority(item.id, !linkModel.isPriority)
+            linkRepository.updatePriority(item.id, newPriority)
         }
     }
 

@@ -22,12 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -85,7 +83,6 @@ fun ExploreScreen(
     ) {
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Top Header Bar with HoardrLogo
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -125,7 +122,6 @@ fun ExploreScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Card Stack Container
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -196,7 +192,6 @@ fun ExploreScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Action Button
         if (articles.isNotEmpty()) {
             val topItem = articles.first()
 
@@ -244,9 +239,9 @@ fun ExploreScreen(
                         .background(colors.surfaceVariant, RoundedCornerShape(25.dp)),
                 ) {
                     Icon(
-                        imageVector = if (topItem.isPriority) Icons.Filled.Star else Icons.Outlined.Star,
+                        imageVector = if (topItem.isPriority) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = "Priority",
-                        tint = if (topItem.isPriority) colors.accent else colors.textPrimary,
+                        tint = if (topItem.isPriority) colors.accent else colors.textSecondary,
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -337,7 +332,6 @@ fun SwipeableArticleCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Article Image
             SubcomposeAsyncImage(
                 model = item.imageUrl,
                 contentDescription = item.title,
@@ -364,7 +358,6 @@ fun SwipeableArticleCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Title
             Text(
                 text = item.title,
                 fontFamily = Quicksand,
@@ -391,7 +384,6 @@ fun SwipeableArticleCard(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Source Domain
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {

@@ -44,6 +44,7 @@ fun LinkModel.toUiItem(): HoardrUiItem {
         imageUrl = imageUrl,
         rawUrl = url,
         isRead = isRead,
+        isPriority = isPriority,
     )
 }
 
