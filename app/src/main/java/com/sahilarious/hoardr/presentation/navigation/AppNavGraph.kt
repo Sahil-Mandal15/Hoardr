@@ -38,7 +38,7 @@ fun AppNavGraph(
             }
         }
         composable(route = Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(onboardingManager = onboardingManager)
         }
     }
 }

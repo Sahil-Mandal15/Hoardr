@@ -42,17 +42,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sahilarious.hoardr.data.preferences.OnboardingManager
 import com.sahilarious.hoardr.presentation.model.HoardrUiItem
 import com.sahilarious.hoardr.presentation.ui.components.AddHoardBottomSheet
 import com.sahilarious.hoardr.presentation.ui.components.HoardrHeaderLogo
 import com.sahilarious.hoardr.presentation.ui.components.HoardrItemCard
 import com.sahilarious.hoardr.presentation.ui.components.HomeBottomNavBar
 import com.sahilarious.hoardr.presentation.ui.theme.Caveat
-import com.sahilarious.hoardr.presentation.ui.theme.HoardrTheme
 import com.sahilarious.hoardr.presentation.ui.theme.Quicksand
 import com.sahilarious.hoardr.presentation.ui.theme.hoardrColors
 import com.sahilarious.hoardr.presentation.viewmodel.HomeUiState
@@ -60,6 +59,7 @@ import com.sahilarious.hoardr.presentation.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
+    onboardingManager: OnboardingManager,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -67,6 +67,7 @@ fun HomeScreen(
 
     HomeScreenContent(
         uiState = uiState,
+        onboardingManager = onboardingManager,
         onCategorySelected = viewModel::onCategorySelected,
         onSaveHoard = viewModel::addHoard,
         onDeleteItem = viewModel::deleteItem,
@@ -80,6 +81,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
+    onboardingManager: OnboardingManager,
     onCategorySelected: (String) -> Unit,
     onSaveHoard: (category: String, title: String, url: String?, description: String?) -> Unit,
     onDeleteItem: (HoardrUiItem) -> Unit,
@@ -129,7 +131,6 @@ fun HomeScreenContent(
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Top Header Bar
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -155,7 +156,6 @@ fun HomeScreenContent(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Greeting Section
                     Text(
                         text = "Greetings, Anon 🚀",
                         fontFamily = Caveat,
@@ -175,7 +175,6 @@ fun HomeScreenContent(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Category Filter Chips Row
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -206,7 +205,6 @@ fun HomeScreenContent(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    // Saved Items List or Empty State
                     if (uiState.items.isEmpty()) {
                         Box(
                             modifier = Modifier
@@ -273,19 +271,10 @@ fun HomeScreenContent(
                 )
             }
             3 -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "Profile & Settings coming soon 🚀",
-                        fontFamily = Quicksand,
-                        fontSize = 16.sp,
-                        color = colors.textSecondary,
-                    )
-                }
+                ProfileScreen(
+                    onboardingManager = onboardingManager,
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
         }
 
@@ -298,21 +287,5 @@ fun HomeScreenContent(
                 },
             )
         }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun HomeScreenPreview() {
-    HoardrTheme(darkTheme = true) {
-        HomeScreenContent(
-            uiState = HomeUiState(
-                items = emptyList(),
-                selectedCategory = "All",
-            ),
-            onCategorySelected = {},
-            onSaveHoard = { _, _, _, _ -> },
-            onDeleteItem = {},
-        )
     }
 }
