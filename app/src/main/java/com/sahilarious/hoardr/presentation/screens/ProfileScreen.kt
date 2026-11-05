@@ -15,16 +15,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SettingsSystemDaydream
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,19 +38,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sahilarious.hoardr.data.preferences.OnboardingManager
 import com.sahilarious.hoardr.presentation.ui.components.HoardrHeaderLogo
 import com.sahilarious.hoardr.presentation.ui.theme.Caveat
 import com.sahilarious.hoardr.presentation.ui.theme.Quicksand
 import com.sahilarious.hoardr.presentation.ui.theme.hoardrColors
+import com.sahilarious.hoardr.presentation.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
     onboardingManager: OnboardingManager,
     modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val colors = MaterialTheme.hoardrColors
     val currentTheme = onboardingManager.themeMode
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = modifier
@@ -79,7 +89,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Profile & Settings ⚙️",
+            text = "Profile & Statistics ⚙️",
             fontFamily = Caveat,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
@@ -89,13 +99,120 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Manage your preferences and appearance.",
+            text = "Your hoard overview and reading backlog.",
             fontFamily = Quicksand,
             fontSize = 14.sp,
             color = colors.textSecondary,
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = colors.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Reading Progress",
+                        fontFamily = Quicksand,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = colors.textPrimary,
+                    )
+                    Text(
+                        text = "${uiState.readPercentage}% Read",
+                        fontFamily = Quicksand,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = colors.primary,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                LinearProgressIndicator(
+                    progress = { uiState.readPercentage / 100f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = colors.primary,
+                    trackColor = colors.surfaceVariant,
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    StatBox(
+                        title = "Total",
+                        value = "${uiState.totalHoards}",
+                        icon = Icons.Outlined.Bookmark,
+                        modifier = Modifier.weight(1f),
+                    )
+                    StatBox(
+                        title = "Unread",
+                        value = "${uiState.unreadCount}",
+                        icon = Icons.Outlined.Inbox,
+                        modifier = Modifier.weight(1f),
+                    )
+                    StatBox(
+                        title = "Priority",
+                        value = "${uiState.priorityCount}",
+                        icon = Icons.Outlined.Star,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Categories",
+            fontFamily = Quicksand,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = colors.textPrimary,
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            CategoryCountCard(
+                title = "Articles",
+                count = "${uiState.articleCount}",
+                modifier = Modifier.weight(1f),
+            )
+            CategoryCountCard(
+                title = "Notes",
+                count = "${uiState.noteCount}",
+                modifier = Modifier.weight(1f),
+            )
+            CategoryCountCard(
+                title = "Ideas",
+                count = "${uiState.ideaCount}",
+                modifier = Modifier.weight(1f),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = "Appearance",
@@ -129,6 +246,90 @@ fun ProfileScreen(
                 icon = Icons.Outlined.DarkMode,
                 isSelected = currentTheme == OnboardingManager.THEME_DARK,
                 onClick = { onboardingManager.themeMode = OnboardingManager.THEME_DARK },
+            )
+        }
+    }
+}
+
+@Composable
+fun StatBox(
+    title: String,
+    value: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+) {
+    val colors = MaterialTheme.hoardrColors
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = colors.primary,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = value,
+                fontFamily = Quicksand,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = colors.textPrimary,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = title,
+                fontFamily = Quicksand,
+                fontSize = 11.sp,
+                color = colors.textSecondary,
+            )
+        }
+    }
+}
+
+@Composable
+fun CategoryCountCard(
+    title: String,
+    count: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = MaterialTheme.hoardrColors
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = count,
+                fontFamily = Quicksand,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = colors.textPrimary,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = title,
+                fontFamily = Quicksand,
+                fontSize = 12.sp,
+                color = colors.textSecondary,
             )
         }
     }
