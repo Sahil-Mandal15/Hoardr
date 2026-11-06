@@ -14,6 +14,9 @@ interface HoardrDao {
     @Query("DELETE FROM LinkEntity WHERE id = :id")
     suspend fun deleteLinkById(id: Long)
 
+    @Query("DELETE FROM LinkEntity WHERE isRead = 1")
+    suspend fun clearReadLinks()
+
     @Query("SELECT * FROM LinkEntity")
     fun getAllLinks(): Flow<List<LinkEntity>>
 

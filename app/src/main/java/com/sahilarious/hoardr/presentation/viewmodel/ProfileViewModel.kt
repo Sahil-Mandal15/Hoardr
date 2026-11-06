@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ProfileUiState(
@@ -26,7 +27,7 @@ data class ProfileUiState(
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    linkRepository: LinkRepository,
+    private val linkRepository: LinkRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = linkRepository.getAllLinks()
@@ -57,4 +58,10 @@ class ProfileViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = ProfileUiState(isLoading = true),
         )
+
+    fun clearReadItems() {
+        viewModelScope.launch {
+            linkRepository.clearReadLinks()
+        }
+    }
 }

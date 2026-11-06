@@ -47,7 +47,7 @@ class LinkRepositoryImpl @Inject constructor(
     override suspend fun getLinkById(id: Long): LinkModel? {
         return hoardrDao.getAllLinks()
             .map { entities -> entities.map { it.toDomain() } }
-            .firstOrNull() // Takes the first snapshot list from the DB Flow stream
+            .firstOrNull()
             ?.firstOrNull { it.id == id }
     }
 
@@ -84,6 +84,10 @@ class LinkRepositoryImpl @Inject constructor(
 
     override suspend fun deleteLink(id: Long) {
         hoardrDao.deleteLinkById(id)
+    }
+
+    override suspend fun clearReadLinks() {
+        hoardrDao.clearReadLinks()
     }
 
     override suspend fun updateReadStatus(id: Long, isRead: Boolean) {
@@ -173,13 +177,11 @@ class LinkRepositoryImpl @Inject constructor(
     }
 
     private suspend fun fetchHtml(targetUrl: String): String? {
-        // 1. Try direct fetch first using browser User-Agent (fast & works for most sites)
         val directHtml = fetchHtmlDirect(targetUrl)
         if (!directHtml.isNullOrBlank()) {
             return directHtml
         }
 
-        // 2. Fallback to ZenRows if direct fetch failed
         Log.w("LinkRepository", "Direct fetch failed. Falling back to ZenRows for: $targetUrl")
         return fetchHtmlWithZenRows(targetUrl)
     }
