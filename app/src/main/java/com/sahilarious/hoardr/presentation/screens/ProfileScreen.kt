@@ -1,6 +1,9 @@
 package com.sahilarious.hoardr.presentation.screens
 
+import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,12 +16,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.DeleteSweep
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Person
@@ -33,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.imageLoader
 import com.sahilarious.hoardr.data.preferences.OnboardingManager
@@ -49,6 +58,8 @@ import com.sahilarious.hoardr.presentation.ui.theme.Caveat
 import com.sahilarious.hoardr.presentation.ui.theme.Quicksand
 import com.sahilarious.hoardr.presentation.ui.theme.hoardrColors
 import com.sahilarious.hoardr.presentation.viewmodel.ProfileViewModel
+import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun ProfileScreen(
@@ -60,11 +71,31 @@ fun ProfileScreen(
     val colors = MaterialTheme.hoardrColors
     val currentTheme = onboardingManager.themeMode
     val uiState by viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val jsonString = inputStream?.bufferedReader().use { reader -> reader?.readText() }
+                if (!jsonString.isNullOrBlank()) {
+                    viewModel.importFromJson(jsonString)
+                    Toast.makeText(context, "Backup imported successfully!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (_: Exception) {
+                Toast.makeText(context, "Failed to import backup", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 24.dp),
     ) {
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -232,6 +263,38 @@ fun ProfileScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            ActionOptionCard(
+                title = "Export Backup (JSON)",
+                icon = Icons.Outlined.FileDownload,
+                onClick = {
+                    coroutineScope.launch {
+                        try {
+                            val json = viewModel.exportJsonString()
+                            val file = File(context.cacheDir, "hoardr_backup_${System.currentTimeMillis()}.json")
+                            file.writeText(json)
+                            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/json"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            val chooser = Intent.createChooser(intent, "Export Hoardr Backup")
+                            context.startActivity(chooser)
+                        } catch (_: Exception) {
+                            Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+            )
+
+            ActionOptionCard(
+                title = "Import Backup (JSON)",
+                icon = Icons.Outlined.FileUpload,
+                onClick = {
+                    importLauncher.launch(arrayOf("application/json", "*/*"))
+                },
+            )
+
             ActionOptionCard(
                 title = "Clear Image Cache",
                 icon = Icons.Outlined.DeleteSweep,

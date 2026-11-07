@@ -66,6 +66,10 @@ class LinkRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun importLinks(links: List<LinkModel>) {
+        hoardrDao.insertLinks(links.map { it.toEntity() })
+    }
+
     private fun extractUrl(text: String?): String? {
         if (text.isNullOrBlank()) return null
         val trimmed = text.trim()

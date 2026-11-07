@@ -2,15 +2,20 @@ package com.sahilarious.hoardr.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sahilarious.hoardr.app.core.Status
+import com.sahilarious.hoardr.domain.model.LinkModel
 import com.sahilarious.hoardr.domain.repository.LinkRepository
 import com.sahilarious.hoardr.presentation.model.ItemCategory
 import com.sahilarious.hoardr.presentation.model.toUiItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
 import javax.inject.Inject
 
 data class ProfileUiState(
@@ -62,6 +67,53 @@ class ProfileViewModel @Inject constructor(
     fun clearReadItems() {
         viewModelScope.launch {
             linkRepository.clearReadLinks()
+        }
+    }
+
+    suspend fun exportJsonString(): String {
+        val dbLinks = linkRepository.getAllLinks().firstOrNull() ?: emptyList()
+        val jsonArray = JSONArray()
+        dbLinks.forEach { link ->
+            val obj = JSONObject().apply {
+                put("id", link.id)
+                put("url", link.url)
+                put("title", link.title)
+                put("description", link.description)
+                put("imageUrl", link.imageUrl)
+                put("category", link.category)
+                put("timestamp", link.timestamp)
+                put("isRead", link.isRead)
+                put("status", link.status.name)
+                put("isPriority", link.isPriority)
+            }
+            jsonArray.put(obj)
+        }
+        return jsonArray.toString(2)
+    }
+
+    fun importFromJson(jsonString: String) {
+        viewModelScope.launch {
+            try {
+                val jsonArray = JSONArray(jsonString)
+                val list = mutableListOf<LinkModel>()
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val link = LinkModel(
+                        id = if (obj.has("id")) obj.getLong("id") else 0,
+                        url = if (obj.has("url") && !obj.isNull("url")) obj.getString("url") else null,
+                        title = if (obj.has("title") && !obj.isNull("title")) obj.getString("title") else null,
+                        description = if (obj.has("description") && !obj.isNull("description")) obj.getString("description") else null,
+                        imageUrl = if (obj.has("imageUrl") && !obj.isNull("imageUrl")) obj.getString("imageUrl") else null,
+                        category = if (obj.has("category")) obj.getString("category") else "Article",
+                        timestamp = if (obj.has("timestamp")) obj.getLong("timestamp") else System.currentTimeMillis(),
+                        isRead = if (obj.has("isRead")) obj.getBoolean("isRead") else false,
+                        status = Status.valueOf(if (obj.has("status")) obj.getString("status") else "PROCESSED"),
+                        isPriority = if (obj.has("isPriority")) obj.getBoolean("isPriority") else false,
+                    )
+                    list.add(link)
+                }
+                linkRepository.importLinks(list)
+            } catch (_: Exception) {}
         }
     }
 }

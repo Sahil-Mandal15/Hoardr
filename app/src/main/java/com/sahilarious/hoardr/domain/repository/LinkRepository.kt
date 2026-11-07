@@ -11,6 +11,7 @@ interface LinkRepository {
 
     suspend fun getLinkById(id: Long): LinkModel?
     suspend fun addLink(link: LinkModel)
+    suspend fun importLinks(links: List<LinkModel>)
     suspend fun deleteLink(id: Long)
     suspend fun clearReadLinks()
     suspend fun updateReadStatus(id: Long, isRead: Boolean)

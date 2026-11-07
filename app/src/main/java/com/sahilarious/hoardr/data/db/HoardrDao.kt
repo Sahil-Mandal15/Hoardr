@@ -11,6 +11,9 @@ interface HoardrDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLink(linkEntity: LinkEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLinks(linkEntities: List<LinkEntity>)
+
     @Query("DELETE FROM LinkEntity WHERE id = :id")
     suspend fun deleteLinkById(id: Long)
 
