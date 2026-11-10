@@ -15,15 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,33 +78,16 @@ fun PriorityScreenContent(
     ) {
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Top Header Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             HoardrHeaderLogo()
-
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(colors.surfaceVariant),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "Profile",
-                    tint = colors.textPrimary,
-                    modifier = Modifier.size(22.dp),
-                )
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Greeting Section / Title
         Text(
             text = "Priority Hoards ⭐",
             fontFamily = Caveat,
@@ -129,7 +107,6 @@ fun PriorityScreenContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Category Filter Chips Row
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxWidth(),
@@ -160,7 +137,6 @@ fun PriorityScreenContent(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Priority Items List or Empty State
         if (uiState.items.isEmpty()) {
             Box(
                 modifier = Modifier

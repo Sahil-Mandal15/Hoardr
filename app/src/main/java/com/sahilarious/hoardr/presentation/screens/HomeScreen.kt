@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -23,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -91,7 +89,8 @@ fun HomeScreenContent(
 ) {
     val context = LocalContext.current
     val colors = MaterialTheme.hoardrColors
-    var selectedNavIndex by remember { mutableIntStateOf(0) }
+    val initialTab = remember { if (onboardingManager.shouldAutoOpenExplore()) 1 else 0 }
+    var selectedNavIndex by remember { mutableIntStateOf(initialTab) }
     var isAddBottomSheetOpen by remember { mutableStateOf(false) }
 
     val categories = listOf("All", "Articles", "Notes", "Ideas")
@@ -133,25 +132,10 @@ fun HomeScreenContent(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         HoardrHeaderLogo()
-
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(colors.surfaceVariant),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = "Profile",
-                                tint = colors.textPrimary,
-                                modifier = Modifier.size(22.dp),
-                            )
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

@@ -6,6 +6,7 @@ import com.sahilarious.hoardr.app.core.Status
 import com.sahilarious.hoardr.domain.model.LinkModel
 import com.sahilarious.hoardr.domain.repository.LinkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,7 +16,7 @@ class ShareViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun insertLink(url: String) {
-        viewModelScope.launch {
+        GlobalScope.launch {
             val link = LinkModel(
                 id = 0,
                 url = url,
